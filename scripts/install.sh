@@ -23,20 +23,36 @@ sudo apt install -y git build-essential cmake wget curl bc netcat-openbsd jq
 
 # Clone and build llama.cpp
 echo "Building llama.cpp..."
-if [ ! -d ~/llama/llama.cpp ]; then
-    cd ~/llama
+cd ~/llama
+
+# Check if llama.cpp exists and has content
+if [ ! -d llama.cpp ] || [ ! -f llama.cpp/Makefile ]; then
+    echo "Cloning llama.cpp repository..."
+    rm -rf llama.cpp  # Remove if empty
     git clone https://github.com/ggerganov/llama.cpp.git
+    if [ $? -ne 0 ]; then
+        echo "Error: Failed to clone llama.cpp repository"
+        exit 1
+    fi
 fi
 
-cd ~/llama/llama.cpp
+cd llama.cpp
+
+# Build using Makefile (preferred method)
 if [ -f Makefile ]; then
-    make clean && make LLAMA_CUBLAS=0
+    echo "Building with Makefile..."
+    make clean 2>/dev/null || true
+    make -j$(nproc) LLAMA_CUBLAS=0
+    
+    # Check if server binary was created
+    if [ ! -f server ]; then
+        echo "Error: server binary not created"
+        exit 1
+    fi
+    echo "✓ llama.cpp server built successfully"
 else
-    echo "No Makefile found. Running cmake..."
-    mkdir -p build && cd build
-    cmake .. -DLLAMA_CUBLAS=OFF
-    make -j$(nproc)
-    cp server ../server 2>/dev/null || true
+    echo "Error: Makefile not found in llama.cpp directory"
+    exit 1
 fi
 
 # Copy launcher scripts
