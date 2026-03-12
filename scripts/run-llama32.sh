@@ -34,4 +34,4 @@ $SERVER \
   -ngl 0 \
   --host 0.0.0.0 \
   --port 8080 \
-  -fa
+  -fa auto

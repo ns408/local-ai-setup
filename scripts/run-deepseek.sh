@@ -29,7 +29,7 @@ if free -m | grep -q "Mem:.*12000"; then
     -ngl 0 \
     --host 0.0.0.0 \
     --port 8080 \
-    -fa
+    -fa auto
 else
   echo "Not enough RAM (ASUS detected). Use a 3B model instead."
   exit 1
