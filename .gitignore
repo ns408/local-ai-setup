@@ -1,0 +1,87 @@
+# Development and build artifacts
+.dev/
+.kiro/
+build/
+dist/
+*.egg-info/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+
+# Runtime and logs
+*.log
+logs/
+.env
+.env.local
+.env.*.local
+
+# Benchmark and test results
+benchmark-results.md
+quick-benchmark.md
+benchmark-comparison.md
+hardware_os_dump_*.txt
+.dev/logs/
+.dev/benchmark-results.md
+.dev/quick-benchmark.md
+.dev/benchmark-comparison.md
+
+# Model files (large, should be downloaded separately)
+models/
+~/llama/
+llama.cpp/
+
+# System and hardware dumps (SENSITIVE - contains serial numbers)
+hardware_os_dump_*
+*.dump
+*.dmp
+
+# Temporary files
+*.tmp
+*.temp
+/tmp/
+temp/
+
+# OS-specific
+Thumbs.db
+.AppleDouble
+.LSOverride
+._*
+
+# Node modules (if any)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Python virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# Cache directories
+.cache/
+.pytest_cache/
+.mypy_cache/
+.tox/
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+
+# Dependency lock files (optional - uncomment if needed)
+# poetry.lock
+# Pipfile.lock
