@@ -42,34 +42,42 @@ download_phi3() {
             --local-dir "$MODELS_DIR" \
             --local-dir-use-symlinks False
     else
-        wget -P "$MODELS_DIR" \
-            "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf/resolve/main/phi-3-mini-4k-instruct-q5_K_M.gguf"
+        wget -O "$MODELS_DIR/phi-3-mini-4k-instruct-q5_K_M.gguf" \
+            "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf/resolve/main/Phi-3-mini-4k-instruct-q5_K_M.gguf"
     fi
 }
 
 download_llama32() {
     echo "Downloading Llama 3.2 3B (Q5_K_M)..."
+    echo "Note: This model requires HuggingFace authentication."
+    echo "Please use: huggingface-cli login"
     if [ "$USE_HF" = true ]; then
         huggingface-cli download meta-llama/Llama-3.2-3B-Instruct-GGUF \
-            llama-3.2-3b-instruct-q5_K_M.gguf \
+            Llama-3.2-3B-Instruct-Q5_K_M.gguf \
             --local-dir "$MODELS_DIR" \
             --local-dir-use-symlinks False
+        # Rename to match script expectations
+        mv "$MODELS_DIR/Llama-3.2-3B-Instruct-Q5_K_M.gguf" "$MODELS_DIR/llama-3.2-3b-instruct-q5_K_M.gguf" 2>/dev/null || true
     else
-        wget -P "$MODELS_DIR" \
-            "https://huggingface.co/meta-llama/Llama-3.2-3B-Instruct-GGUF/resolve/main/llama-3.2-3b-instruct-q5_K_M.gguf"
+        echo "ERROR: Llama 3.2 requires authentication. Please install huggingface-cli:"
+        echo "  pip install huggingface-hub[cli]"
+        echo "  huggingface-cli login"
+        return 1
     fi
 }
 
 download_tiny() {
     echo "Downloading TinyLlama 1.1B (Q5_K_M)..."
     if [ "$USE_HF" = true ]; then
-        huggingface-cli download TinyLlama/TinyLlama-1.1B-Chat-v1.0-GGUF \
-            tinyllama-1.1b-chat-q5_K_M.gguf \
+        huggingface-cli download TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF \
+            tinyllama-1.1b-chat-v1.0.Q5_K_M.gguf \
             --local-dir "$MODELS_DIR" \
             --local-dir-use-symlinks False
+        # Rename to match script expectations
+        mv "$MODELS_DIR/tinyllama-1.1b-chat-v1.0.Q5_K_M.gguf" "$MODELS_DIR/tinyllama-1.1b-chat-q5_K_M.gguf" 2>/dev/null || true
     else
-        wget -P "$MODELS_DIR" \
-            "https://huggingface.co/TinyLlama/TinyLlama-1.1B-Chat-v1.0-GGUF/resolve/main/tinyllama-1.1b-chat-q5_K_M.gguf"
+        wget -O "$MODELS_DIR/tinyllama-1.1b-chat-q5_K_M.gguf" \
+            "https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF/resolve/main/tinyllama-1.1b-chat-v1.0.Q5_K_M.gguf"
     fi
 }
 
@@ -77,25 +85,29 @@ download_qwen() {
     echo "Downloading Qwen 2.5 3B (Q5_K_M)..."
     if [ "$USE_HF" = true ]; then
         huggingface-cli download Qwen/Qwen2.5-3B-Instruct-GGUF \
-            qwen2.5-3b-instruct-q5_K_M.gguf \
+            qwen2.5-3b-instruct-q5_k_m.gguf \
             --local-dir "$MODELS_DIR" \
             --local-dir-use-symlinks False
+        # Rename to match script expectations
+        mv "$MODELS_DIR/qwen2.5-3b-instruct-q5_k_m.gguf" "$MODELS_DIR/qwen2.5-3b-instruct-q5_K_M.gguf" 2>/dev/null || true
     else
-        wget -P "$MODELS_DIR" \
-            "https://huggingface.co/Qwen/Qwen2.5-3B-Instruct-GGUF/resolve/main/qwen2.5-3b-instruct-q5_K_M.gguf"
+        wget -O "$MODELS_DIR/qwen2.5-3b-instruct-q5_K_M.gguf" \
+            "https://huggingface.co/Qwen/Qwen2.5-3B-Instruct-GGUF/resolve/main/qwen2.5-3b-instruct-q5_k_m.gguf"
     fi
 }
 
 download_deepseek() {
     echo "Downloading DeepSeek Coder 6.7B (Q5_K_M)..."
     if [ "$USE_HF" = true ]; then
-        huggingface-cli download deepseek-ai/deepseek-coder-6.7b-instruct-GGUF \
-            deepseek-coder-6.7b-instruct-q5_K_M.gguf \
+        huggingface-cli download TheBloke/deepseek-coder-6.7B-instruct-GGUF \
+            deepseek-coder-6.7b-instruct.Q5_K_M.gguf \
             --local-dir "$MODELS_DIR" \
             --local-dir-use-symlinks False
+        # Rename to match script expectations
+        mv "$MODELS_DIR/deepseek-coder-6.7b-instruct.Q5_K_M.gguf" "$MODELS_DIR/deepseek-coder-6.7b-instruct-q5_K_M.gguf" 2>/dev/null || true
     else
-        wget -P "$MODELS_DIR" \
-            "https://huggingface.co/deepseek-ai/deepseek-coder-6.7b-instruct-GGUF/resolve/main/deepseek-coder-6.7b-instruct-q5_K_M.gguf"
+        wget -O "$MODELS_DIR/deepseek-coder-6.7b-instruct-q5_K_M.gguf" \
+            "https://huggingface.co/TheBloke/deepseek-coder-6.7B-instruct-GGUF/resolve/main/deepseek-coder-6.7b-instruct.Q5_K_M.gguf"
     fi
 }
 
