@@ -1,0 +1,113 @@
+name: Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  shellcheck:
+    name: ShellCheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Run ShellCheck
+        uses: ludeeus/action-shellcheck@master
+        with:
+          scandir: './scripts'
+          severity: warning
+
+  script-tests:
+    name: Script Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Make scripts executable
+        run: chmod +x scripts/*.sh
+      
+      - name: Test script syntax
+        run: |
+          for script in scripts/*.sh; do
+            echo "Checking $script"
+            bash -n "$script"
+          done
+      
+      - name: Test install-deps script (dry run)
+        run: |
+          # Test that install-deps.sh has valid syntax
+          bash -n scripts/install-deps.sh
+      
+      - name: Verify no sensitive data
+        run: |
+          # Check for common sensitive patterns
+          if grep -r "password\|secret\|api.?key\|token" scripts/ --include="*.sh" | grep -v "# "; then
+            echo "Found potential sensitive data in scripts"
+            exit 1
+          fi
+          echo "No sensitive data found"
+      
+      - name: Verify hardware_os_analyzer safety
+        run: |
+          # Ensure hardware_os_analyzer doesn't collect serial numbers
+          if grep -E "lsblk.*SERIAL|dmidecode[^#]|smartctl[^#]" scripts/hardware_os_analyzer.sh | grep -v "echo\|#"; then
+            echo "Found serial number collection commands"
+            exit 1
+          fi
+          echo "Hardware analyzer is safe"
+
+  documentation:
+    name: Documentation Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Check README exists
+        run: test -f README.md
+      
+      - name: Check LICENSE exists
+        run: test -f LICENSE
+      
+      - name: Check SECURITY.md exists
+        run: test -f SECURITY.md
+      
+      - name: Check CONTRIBUTING.md exists
+        run: test -f CONTRIBUTING.md
+      
+      - name: Verify README has required sections
+        run: |
+          grep -q "Hardware Overview" README.md
+          grep -q "Quick Start" README.md
+          grep -q "Available Models" README.md
+          grep -q "Security" README.md
+          echo "README has all required sections"
+      
+      - name: Check for broken links in markdown
+        uses: gaurav-nelson/github-action-markdown-link-check@v1
+        with:
+          use-quiet-mode: 'yes'
+          config-file: '.github/markdown-link-check-config.json'
+        continue-on-error: true
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Run Trivy security scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+        continue-on-error: true
+      
+      - name: Upload Trivy results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results.sarif'
+        continue-on-error: true
