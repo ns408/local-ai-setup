@@ -26,7 +26,7 @@ echo "Building llama.cpp..."
 cd ~/llama
 
 # Check if llama.cpp exists and has content
-if [ ! -d llama.cpp ] || [ ! -f llama.cpp/Makefile ]; then
+if [ ! -d llama.cpp ] || [ ! -f llama.cpp/CMakeLists.txt ]; then
     echo "Cloning llama.cpp repository..."
     rm -rf llama.cpp  # Remove if empty
     git clone https://github.com/ggerganov/llama.cpp.git
@@ -38,20 +38,36 @@ fi
 
 cd llama.cpp
 
-# Build using Makefile (preferred method)
-if [ -f Makefile ]; then
-    echo "Building with Makefile..."
-    make clean 2>/dev/null || true
-    make -j$(nproc) LLAMA_CUBLAS=0
-    
-    # Check if server binary was created
-    if [ ! -f server ]; then
-        echo "Error: server binary not created"
-        exit 1
-    fi
-    echo "✓ llama.cpp server built successfully"
+# Build using CMake (llama.cpp now requires CMake)
+echo "Building with CMake..."
+mkdir -p build
+cd build
+
+# Configure with CMake (CPU-only, no CUDA)
+cmake .. -DLLAMA_CUDA=OFF -DLLAMA_CUBLAS=OFF -DBUILD_SHARED_LIBS=OFF
+if [ $? -ne 0 ]; then
+    echo "Error: CMake configuration failed"
+    exit 1
+fi
+
+# Build
+make -j$(nproc)
+if [ $? -ne 0 ]; then
+    echo "Error: Build failed"
+    exit 1
+fi
+
+# Check if server binary was created
+if [ -f bin/llama-server ]; then
+    # Copy server to parent directory for easy access
+    cp bin/llama-server ../llama-server
+    echo "✓ llama.cpp server built successfully (llama-server)"
+elif [ -f bin/server ]; then
+    cp bin/server ../server
+    echo "✓ llama.cpp server built successfully (server)"
 else
-    echo "Error: Makefile not found in llama.cpp directory"
+    echo "Error: server binary not found in build/bin/"
+    ls -la bin/ || echo "bin/ directory not found"
     exit 1
 fi
 
